@@ -1,0 +1,188 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial;
+    background-color: #111;
+    color: white;
+
+    height: 100vh;
+
+   
+}
+
+.menu {
+    position: sticky;
+    top: 0;
+    background-color:  #f5f0e6;
+    color: black;
+    text-align: center;
+    padding: 15px;
+    z-index: 100;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+}
+
+
+.cuadrado-circulo {
+    padding: 60px;
+}
+
+.cuadrado {
+    width: 120px;
+    height: 120px;
+    background-color: crimson;
+
+    margin: 20px auto;
+
+    transition: all 0.4s ease;
+}
+
+.cuadrado:hover {
+    border-radius: 50%;
+    background-color: gold;
+}
+
+.contenedor {
+    position: relative;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.suelo {
+    position: absolute;
+    bottom: 10px;
+    width: 200px;
+    height: 4px;
+    background-color: white;
+    opacity: 0.8;
+}
+.pelota-container {
+    padding: 60px;
+}
+
+.pelota {
+    width: 80px;
+    height: 80px;
+    background-color: dodgerblue;
+    border-radius: 50%; 
+    position: absolute;
+    bottom: 4px;
+    animation: bounce 1.5s infinite;  
+}
+
+@keyframes bounce {
+    0% {
+        transform: translateY(0) scale(1, 1); 
+        bottom: 4px; 
+    }
+
+    45% {
+        transform: translateY(-180px) scale(1, 1); 
+        bottom: 4px; 
+    }
+
+    50% {
+        transform: translateY(-180px) scale(1, 1); 
+        bottom: 4px; 
+    }
+
+    75% {
+        transform: translateY(0) scale(1.2, 0.6); 
+        bottom: 0px; 
+    }
+
+    100% {
+        transform: translateY(0) scale(1.2, 0.6); 
+        bottom: 0px; 
+    }
+}
+
+.anuncio-div {
+    padding: 80px;
+    text-align: center; 
+}
+
+.anuncio {
+    width: 300px;
+    margin: auto;
+    background-color: #000;
+    border: 2px solid #fff;
+    padding: 20px;
+    overflow: hidden;
+}
+
+.anuncio-logo {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    opacity: 0; 
+}
+
+.anuncio-slogan {
+    font-size: 1rem;
+    margin-bottom: 15px;
+    opacity: 0; 
+}
+
+.anuncio-image {
+    width: 100%;
+    opacity: 0; 
+}
+
+.anuncio-div :hover .anuncio-logo {
+    animation: logoAnim 2s ease-out forwards;
+}
+
+.anuncio-div :hover .anuncio-slogan {
+    animation: sloganAnim 2s ease-out forwards;
+    animation-delay: 1s; 
+}
+
+.anuncio-div :hover .anuncio-image {
+    animation: imageAnim 2s ease-out forwards;
+    animation-delay: 2s; 
+}
+
+
+@keyframes logoAnim {
+    from {
+        transform: translateY(-50px); 
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes sloganAnim {
+    from {
+        transform: translateX(-100%); 
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes imageAnim {
+    from {
+        transform: translateY(50px); 
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
