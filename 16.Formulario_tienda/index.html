@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Formulario Tienda</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h2 class="italia">
+        <span>P</span><span>e</span><span>d</span><span>i</span><span>d</span
+        ><span>o</span>
+        <span> </span>
+        <span>d</span><span>e</span>
+        <span> </span>
+        <span>P</span><span>i</span><span>z</span><span>z</span><span>a</span>
+      </h2>
+
+      <form action="recibido.html" method="GET">
+        <label for="para">Para</label>
+        <select name="para" id="para">
+          <option value="sr">Sr.</option>
+          <option value="sra">Sra.</option>
+          <option value="nb">NB</option>
+        </select>
+
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" required />
+
+        <label for="telefono">Teléfono:</label>
+        <input type="tel" id="telefono" name="telefono" required />
+
+        <label for="pizza">Tipo de pizza:</label>
+        <select name="pizza" id="pizza">
+          <option value="margarita">Margarita</option>
+          <option value="pepperoni">Pepperoni</option>
+          <option value="cuatro_quesos">Cuatro Quesos</option>
+          <option value="barbacoa">Barbacoa</option>
+          <option value="vegetariana">Vegetariana</option>
+          <option value="hawaiana">Hawaiana</option>
+        </select>
+
+        <p>Ingredientes extra:</p>
+
+        <input type="checkbox" id="extra1" name="extras" value="queso" />
+        <label for="extra1">Queso extra</label>
+
+        <input type="checkbox" id="extra2" name="extras" value="champiñones" />
+        <label for="extra2">Champiñones</label>
+
+        <input type="checkbox" id="extra3" name="extras" value="aceitunas" />
+        <label for="extra3">Aceitunas</label>
+
+        <input type="checkbox" id="extra4" name="extras" value="bacon" />
+        <label for="extra4">Atún</label>
+
+        <div class="grupo-opciones">
+          <p>Tipo de entrega:</p>
+
+          <label>
+            <input type="radio" name="entrega" value="domicilio" required />
+            Enviar a casa
+          </label>
+
+          <label>
+            <input type="radio" name="entrega" value="recoger" />
+            Recoger en tienda
+          </label>
+        </div>
+
+        <label for="comentarios">Comentarios:</label>
+        <textarea id="comentarios" name="comentarios" rows="4"></textarea>
+
+        <button type="submit">
+          <div class="svg-wrapper-1">
+            <div class="svg-wrapper">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+              >
+                <path fill="none" d="M0 0h24v24H0z"></path>
+                <path
+                  fill="currentColor"
+                  d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"
+                ></path>
+              </svg>
+            </div>
+          </div>
+          <span>Enviar pedido</span>
+        </button>
+      </form>
+    </div>
+  </body>
+</html>
