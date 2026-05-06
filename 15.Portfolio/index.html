@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi Portfolio</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <!-- Menú superior, aquí el usuario puede acceder a los diferentes apartados del portfolio 
+     y localizar mis redes sociales -->
+    <header>
+    
+      <div class="header-izquierda">
+        <a href="#sobre-mi">Sobre mí</a>
+        <a href="#proyectos">Proyectos</a>
+        <a href="#contacto">Contacto</a>
+      </div>
+
+      <div class="header-derecha">
+        <a href="https://github.com/remus70" target="_blank">
+          <img src="img/github.png" alt="GitHub" />
+        </a>
+
+        <a
+          href="https://www.linkedin.com/in/marc-barranco-cordero/?skipRedirect=true"
+          target="_blank"
+        >
+          <img src="img/linkedin.png" alt="Linkedin" />
+        </a>
+
+        <a href="https://www.instagram.com/marc_barranco/" target="_blank">
+          <img src="img/instagram.png" alt="Instagram" />
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <!-- Esta sección hago una pequeña introducción sobre mi -->
+      <section id="sobre-mi">
+        <h2>Sobre mí</h2>
+        <div class="sobre-mi-contenedor">
+          <img
+            src="img/Captura de pantalla 2026-05-03 160556.png"
+            alt="Foto personal"
+          />
+
+          <div class="texto">
+            <p>
+              Soy desarrollador backend con experiencia en la construcción de
+              APIs basadas en arquitectura hexagonal y microservicios. He
+              trabajado principalmente con Node.js y NestJS, desarrollando
+              soluciones escalables y sostenible.
+            </p>
+
+            <p>
+              Durante mi experiencia reciente, he participado en el desarrollo
+              de sistemas que automatizan la recolección y procesamiento de
+              datos a través de web scraping y uso de bases de datos como MySQL
+              y PostgreSQL.
+            </p>
+
+            <p>
+              A nivel técnico, cuento con conocimientos en JavaScript, Java,
+              Python y frameworks como Vue, además de herramientas como Docker,
+              Git y GitHub. Actualmente sigo formándome en Ingeniería
+              Informática y una capacitación profesional en desarrollo web
+            </p>
+
+            <p>
+              Aporto capacidad de aprendizaje continuo y una mentalidad
+              orientada a resultados. Me interesa formar parte de equipos donde
+              pueda seguir creciendo como desarrollador backend, contribuir a
+              proyectos y aportar valor.
+            </p>
+
+            <p>
+              Busco oportunidades donde pueda consolidar mis
+              conocimientos,aprender buenas prácticas de desarrollo y seguir
+              evolucionando.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <hr />
+
+      <!-- En esta sección he hecho dos divs con tablas e iconos para mostrar de forma visual 
+       mis conocimientos -->
+      <section id="habilidades">
+        <h2>Habilidades</h2>
+
+        <div class="habilidades-contenedor">
+          <div class="habilidades-box">
+            <h3>Frontend</h3>
+
+            <ul class="habilidades-list">
+              <li><img src="img/html.png" alt="HTML" /> HTML</li>
+              <li><img src="img/css-3.png" alt="CSS" /> CSS</li>
+              <li>
+                <img src="img/java-script.png" alt="JavaScript" /> JavaScript
+              </li>
+              <li><img src="img/vue.png" alt="Vue" /> Vue</li>
+              <li><img src="img/angular.png" alt="Angular" /> Angular</li>
+            </ul>
+          </div>
+
+          <div class="habilidades-box">
+            <h3>Backend</h3>
+
+            <ul class="habilidades-list">
+              <li><img src="img/nodejs.png" alt="Node" /> Node.js</li>
+              <li><img src="img/java.png" alt="Java" /> Java</li>
+              <li><img src="img/python.png" alt="Python" /> Python</li>
+              <li><img src="img/docker.png" alt="Docker" /> Docker</li>
+              <li><img src="img/mysql-database.png" alt="MySql" /> MySql</li>
+              <li><img src="img/postgre.png" alt="PostgreSql" /> PostgreSql</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <hr />
+
+      <!-- En este apartado he hecho un carrusel para mostrar los diferentes proyectos, con un 
+       radio button e imagenes de fondo que muestran los proyectos, con el boton se llega a las 
+       diferentes github pages -->
+      <section id="proyectos">
+        <h2>Mis Proyectos</h2>
+
+        <div class="carrusel">
+          <input type="radio" name="tarjeta" id="tarjeta1" checked />
+          <input type="radio" name="tarjeta" id="tarjeta2" />
+          <input type="radio" name="tarjeta" id="tarjeta3" />
+          <input type="radio" name="tarjeta" id="tarjeta4" />
+          <input type="radio" name="tarjeta" id="tarjeta5" />
+          <input type="radio" name="tarjeta" id="tarjeta6" />
+
+          <div class="tarjetas">
+            <div class="tarjeta uno">
+              <a
+                class="button"
+                href="https://remus70.github.io/noticiero/"
+                target="_blank"
+                >Ver proyecto</a
+              >
+            </div>
+
+            <div class="tarjeta dos">
+              <a class="button" href="https://remus70.github.io/buscaminas/"
+                target="_blank
+                ">Ver proyecto</a
+              >
+            </div>
+
+            <div class="tarjeta tres">
+              <a
+                class="button"
+                href="https://remus70.github.io/web_personal/"
+                target="_blank"
+                >Ver proyecto</a
+              >
+            </div>
+          </div>
+
+          <div class="navegacion">
+            <label for="tarjeta1"></label>
+            <label for="tarjeta2"></label>
+            <label for="tarjeta3"></label>
+          </div>
+        </div>
+      </section>
+
+      <hr />
+
+      <!--En esta seccion creo un formulario de contacto, con campos requeridos para que el usuario se comunique conmigo-->
+
+      <section id="contacto">
+        <h2>Contacto</h2>
+        <div class="container">
+          <div class="form-box">
+            <form action="recibido.html" method="GET">
+              <input type="text" name="nombre" placeholder="Nombre" required />
+              <input type="email" name="email" placeholder="Email" required />
+              <textarea name="mensaje" placeholder="Mensaje" required></textarea>
+              <button type="submit">
+                <div class="svg-wrapper-1">
+                  <div class="svg-wrapper">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="24"
+                      height="24"
+                    >
+                      <path fill="none" d="M0 0h24v24H0z"></path>
+                      <path
+                        fill="currentColor"
+                        d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"
+                      ></path>
+                    </svg>
+                  </div>
+                </div>
+                <span>Enviar</span>
+              </button>
+            </form>
+          </div>
+
+          <div class="text-box">
+            <p>
+              Si quieres pedirme el currículum o quieres que trabajemos juntos,
+              rellena tu información y estaré encantado de comunicarme contigo!
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!--Footer con posicion fixed para darle un toque de concordancia a la página-->
+
+    <footer>
+      <p>Portfolio Marc Barranco Cordero</p>
+    </footer>
+  </body>
+</html>
