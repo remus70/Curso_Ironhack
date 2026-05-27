@@ -13,6 +13,9 @@ class Sprite {
         this.width = config.width || 32;
         this.height = config.height || 32;
 
+        // 🔥 ESCALA VISUAL (IMPORTANTE PARA EVITAR COLISIONES VISUALES)
+        this.scale = config.scale || 2;
+
         //Configurar animación
         this.animations = config.animations || {
 
@@ -90,11 +93,12 @@ class Sprite {
                 this.width,
                 this.height,
 
-                x,
-                y,
+                // 🔥 OFFSET VISUAL (EVITA “CHOQUES VISUALES”)
+                x - (this.width * this.scale - 32) / 2,
+                y - (this.height * this.scale - 32) / 2,
 
-                this.width * 2,
-                this.height * 2
+                this.width * this.scale,
+                this.height * this.scale
             );
         }
 

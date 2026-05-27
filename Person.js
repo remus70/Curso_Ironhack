@@ -2,67 +2,104 @@
 
 class Person extends GameObject {
 
-    constructor (config) {
+    constructor(config){
 
-        super(config);
-        this.movingProgressRemaining = 0;
+    super(config);
 
-        this.isPlayerControlled = config.isPlayerControlled || false;
+    this.movingProgressRemaining = 0;
 
-        this.directionUpdate = {
+    this.isPlayerControlled = config.isPlayerControlled || false;
 
-            "up" : ["y", -1],
-            "down" : ["y", 1],
-            "left" : ["x", -1],
-            "right" : ["x" ,1],
+    // 🔥 velocidad del personaje (px por frame)
+    this.speed = config.speed || 1;
 
-        }
+    this.directionUpdate = {
+        "up" : ["y", -1],
+        "down" : ["y", 1],
+        "left" : ["x", -1],
+        "right" : ["x", 1],
     }
+}
 
     update(state){
 
-        // ❌ Solo el jugador puede recibir input
-        if(this.isPlayerControlled){
-            this.handleInput(state);
+        // 1. si está moviéndose, continuar
+        if(this.movingProgressRemaining > 0){
+            this.updatePosition();
+        } else {
+
+            // 2. intentar iniciar movimiento SOLO si hay input
+            if(this.isPlayerControlled && state.arrow){
+
+                // 🔥 FIX: evitar crash si map no existe
+                if(state.map && !state.map.isSpaceTaken(
+                    this.x,
+                    this.y,
+                    state.arrow
+                )){
+
+                    this.startBehavior(state,{
+                        type:"walk",
+                        direction: state.arrow
+                    });
+                }
+            }
         }
 
-        this.updatePosition();
+        // 3. sprite siempre actualizado
         this.updateSprite(state);
+
+        // 📍 LOG SOLO CUANDO EL PERSONAJE ESTÁ EN UNA NUEVA CASILLA
+        if(this.movingProgressRemaining === 0 && this.isPlayerControlled){
+
+            const gridX = this.x / 16;
+            const gridY = this.y / 16;
+
+        console.log("📍 GRID:", gridX, gridY);
+}
     }
 
-    handleInput(state){
+    startBehavior(state, behavior){
 
-        // Si no está en movimiento y hay input → iniciar movimiento
-        if(this.movingProgressRemaining === 0 && state.arrow){
-            this.direction = state.arrow;
-            this.movingProgressRemaining = 16;
+    this.direction = behavior.direction;
+
+    if(behavior.type === "walk"){
+
+        if(state.map.isSpaceTaken(this.x, this.y, this.direction)){
+            return;
         }
+
+        state.map.moveWall(this.x, this.y, this.direction);
+
+        this.movingProgressRemaining = 16;
     }
+}
 
     updatePosition(){
 
-        if(this.movingProgressRemaining > 0){
-            const [property, change] = this.directionUpdate[this.direction];
-            this[property] += change * 1.5;
-            this.movingProgressRemaining -= 1;
-        }
-    }
+    const [property, change] = this.directionUpdate[this.direction];
+
+    // 🔥 1 pixel por frame → 16 frames = 1 tile exacto
+    this[property] += change;
+
+    this.movingProgressRemaining -= 1;
+}
 
     updateSprite(state){
 
-        // 🔥 MOVIMIENTO → WALK
+        // 🔥 MOVIMIENTO
         if(this.movingProgressRemaining > 0){
             this.sprite.setAnimation("walk-" + this.direction);
             return;
         }
 
-        // 🔥 IDLE DEL JUGADOR CON TECLA PRESIONADA
+        // 🔥 IDLE CON INPUT
         if(this.isPlayerControlled && state.arrow){
             this.sprite.setAnimation("idle-" + state.arrow);
             return;
         }
 
-        // 🔥 IDLE GENERAL (NPCs o sin input)
+        // 🔥 IDLE NORMAL
         this.sprite.setAnimation("idle-" + this.direction);
     }
 }
