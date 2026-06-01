@@ -17,7 +17,9 @@ class Overworld {
 
             this.map.drawLowerImage(this.ctx);
 
-            Object.values(this.map.gameObjects).forEach(object => {
+            Object.values(this.map.gameObjects).sort((a,b) => {
+                return a.y -b.y;
+            }).forEach(object => {
 
                 object.update({
 
@@ -37,14 +39,48 @@ class Overworld {
         step();
     }
 
+    bindActionInput(){
+        new KeyPressListener("Enter", () => {
+           //Hay una persona con la que hablar?
+           this.map.checkForActionCutscene() 
+        })
+    }
+
+    bindHeroPositionCheck() {
+        document.addEventListener("PersonWalkingComplete", e => {
+            if (e.detail.whoId === "hero") {
+                //La posición del heroe cambia, revisamos si hay algun evento en esta posicion nueva
+                this.map.checkForFootstepCutscene();
+            }
+        })
+    }
+
+    //Método que nos dice que mapa se visualiza
+    startMap(mapConfig) {
+    this.map = new OverworldMap(mapConfig);
+    this.map.overworld = this;
+
+    this.map.mountObjects();
+
+    //intro automática del mapa
+    if (
+        mapConfig.introCutscene &&
+        !playerState.storyFlags[`INTRO_${mapConfig.id}`]
+    ) {
+        playerState.storyFlags[`INTRO_${mapConfig.id}`] = true;
+        this.map.startCutscene(mapConfig.introCutscene);
+    }
+}
+
     init(){
 
-        this.map = new OverworldMap(
-            //Mapa que se visualiza
-            window.OverWorldMaps.Ia
+        this.startMap(
+            //Mapa que se visualiza al iniciar
+            window.OverworldMaps.Start
         );
 
-        this.map.mountObjects();
+        this.bindActionInput();
+        this.bindHeroPositionCheck();
 
         this.directionInput = new DirectionInput();
         this.directionInput.init();
@@ -52,5 +88,18 @@ class Overworld {
         this.map.lowerImage.onload = () => {
             this.startGameLoop();
         };
+        //Inicializar escena inicial
+        this.map.startCutscene([
+            {who: "hero", type: "walk", direction: "down"},
+            {who: "hero", type: "walk", direction: "down"},
+            {who: "hero", type: "stand", direction: "left", time: 800},
+            {who: "hero", type: "stand", direction: "right", time: 800},
+            {who: "hero", type: "stand", direction: "down", time: 800},
+            //Escena de texto
+            {type: "textMessage", text : "Protocolo de emergencia activado."},
+            {type: "textMessage", text : "Superviviente detectado."},
+            {type: "textMessage", text : "Funciones vitales estabilizadas."},
+            {type: "textMessage", text : "Error crítico... Conexión con la tripulación no disponible."},
+        ])
     }
 }

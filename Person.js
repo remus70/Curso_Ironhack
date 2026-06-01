@@ -8,9 +8,11 @@ class Person extends GameObject {
 
     this.movingProgressRemaining = 0;
 
+    this.isStanding = false;
+
     this.isPlayerControlled = config.isPlayerControlled || false;
 
-    // 🔥 velocidad del personaje (px por frame)
+    // velocidad del personaje
     this.speed = config.speed || 1;
 
     this.directionUpdate = {
@@ -23,15 +25,15 @@ class Person extends GameObject {
 
     update(state){
 
-        // 1. si está moviéndose, continuar
+        //  si está moviéndose, continuar
         if(this.movingProgressRemaining > 0){
             this.updatePosition();
         } else {
 
-            // 2. intentar iniciar movimiento SOLO si hay input
-            if(this.isPlayerControlled && state.arrow){
+            //  intentar iniciar movimiento SOLO si hay input y no hay una cinematica
+            if(!state.map.isCutscenePlaying && this.isPlayerControlled && state.arrow){
 
-                // 🔥 FIX: evitar crash si map no existe
+                //evitar crash si map no existe
                 if(state.map && !state.map.isSpaceTaken(
                     this.x,
                     this.y,
@@ -46,16 +48,14 @@ class Person extends GameObject {
             }
         }
 
-        // 3. sprite siempre actualizado
+        // 3sprite siempre actualizado
         this.updateSprite(state);
 
-        // 📍 LOG SOLO CUANDO EL PERSONAJE ESTÁ EN UNA NUEVA CASILLA
         if(this.movingProgressRemaining === 0 && this.isPlayerControlled){
 
             const gridX = this.x / 16;
             const gridY = this.y / 16;
 
-        console.log("📍 GRID:", gridX, gridY);
 }
     }
 
@@ -66,12 +66,27 @@ class Person extends GameObject {
     if(behavior.type === "walk"){
 
         if(state.map.isSpaceTaken(this.x, this.y, this.direction)){
+            //Si el heroe se pone en la trayectoria del npc, tras un delay vuelve a probar a hacer su evento
+            behavior.retry && setTimeout(() => {
+                this.startBehavior(state,behavior)
+            },10)
             return;
         }
 
         state.map.moveWall(this.x, this.y, this.direction);
 
         this.movingProgressRemaining = 16;
+        
+    }
+
+    if(behavior.type === "stand") {
+        this.isStanding = true;
+        setTimeout(() => {
+            utils.emitEvent("PersonStandingComplete",{
+                whoId: this.id
+            })
+            this.isStanding = false;
+        }, behavior.time)
     }
 }
 
@@ -83,23 +98,30 @@ class Person extends GameObject {
     this[property] += change;
 
     this.movingProgressRemaining -= 1;
+
+    if (this.movingProgressRemaining === 0) {
+        //Ha acabado el evento de caminar
+        utils.emitEvent("PersonWalkingComplete", {
+            whoId: this.id
+        })
+    }
 }
 
     updateSprite(state){
 
-        // 🔥 MOVIMIENTO
+        // MOVIMIENTO
         if(this.movingProgressRemaining > 0){
             this.sprite.setAnimation("walk-" + this.direction);
             return;
         }
 
-        // 🔥 IDLE CON INPUT
+        // IDLE CON INPUT
         if(this.isPlayerControlled && state.arrow){
             this.sprite.setAnimation("idle-" + state.arrow);
             return;
         }
 
-        // 🔥 IDLE NORMAL
+        //IDLE NORMAL
         this.sprite.setAnimation("idle-" + this.direction);
     }
 }

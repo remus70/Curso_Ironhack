@@ -9,11 +9,11 @@ class Sprite {
             this.isLoaded = true;
         }
 
-        // 🔥 TAMAÑO REAL DEL SPRITESHEET
+        //Tamaño real sprite
         this.width = config.width || 32;
         this.height = config.height || 32;
 
-        // 🔥 ESCALA VISUAL (IMPORTANTE PARA EVITAR COLISIONES VISUALES)
+        // escala
         this.scale = config.scale || 2;
 
         //Configurar animación

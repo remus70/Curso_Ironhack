@@ -26,6 +26,8 @@ class DirectionInput {
         return this.heldDirections[0];
     }
 
+    
+
     init (){
 
         document.addEventListener("keydown", e => {

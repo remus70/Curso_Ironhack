@@ -1,9 +1,15 @@
+//Clase que hace de puente entre eventos y el overworld
+
 class OverworldMap {
 
     constructor(config) {
 
+        this.overworld = null;
+
         //Objetos presentes en el mapa
         this.gameObjects = config.gameObjects;
+
+        this.cutsceneSpaces = config.cutsceneSpaces || {};
 
         //Muros en el mapa para limitar el movimiento del personaje
         this.walls = config.walls || {};
@@ -18,6 +24,8 @@ class OverworldMap {
         if (config.upperSrc) {
             this.upperImage.src = config.upperSrc;
         }
+
+        this.isCutscenePlaying = false;
     }
 
     //Dibujar la capa inferior del mapa
@@ -58,7 +66,7 @@ class OverworldMap {
         return true;
     }
 
-    // 2. 🔥 colisión con NPCs / gameObjects
+    //  colisión con NPCs / gameObjects
     return Object.values(this.gameObjects).some(obj => {
 
         if (obj.isPlayerControlled) return false;
@@ -72,12 +80,100 @@ class OverworldMap {
 
     mountObjects(){
 
-        Object.values(this.gameObjects).forEach(o => {
-            o.mount(this);
+        Object.keys(this.gameObjects).forEach(key => {
+
+            let object = this.gameObjects [key];
+            object.id = key;
+            object.mount(this);
         });
 
         console.log("Muros registrados:", this.walls);
     }
+
+    async startCutscene(events) {
+    this.isCutscenePlaying = true;
+
+    for (let i = 0; i < events.length; i++) {
+        const eventHandler = new OverworldEvent({
+            event: events[i],
+            map: this,
+        });
+
+        await eventHandler.init();
+    }
+
+    this.isCutscenePlaying = false;
+
+    Object.values(this.gameObjects).forEach(object =>
+        object.doBehaviorEvent(this)
+    );
+}
+
+    
+
+    //Esta funcion permite saber si el heroe puede interactuar con un personaje y si tiene algo que decirle, si es asi podemos añadir en otra funcion el evento deseado
+
+    checkForActionCutscene() {
+    const hero = this.gameObjects["hero"];
+    const nextCoords = utils.nextPosition(
+        hero.x,
+        hero.y,
+        hero.direction
+    );
+
+    const match = Object.values(this.gameObjects).find(object => {
+        return `${object.x},${object.y}` === `${nextCoords.x},${nextCoords.y}`;
+    });
+
+    // Comprueba si hay una escena en curso y si hay un NPC delante
+    if (!this.isCutscenePlaying && match && match.talking.length) {
+
+        // Busca primero escenarios cuyos requisitos se cumplan
+        let relevantScenario = match.talking.find(scenario => {
+            return scenario.required &&
+                scenario.required.every(sf => {
+                    return window.playerState.storyFlags[sf];
+                });
+        });
+
+        // Si no encuentra ninguno, usa el escenario por defecto
+        if (!relevantScenario) {
+            relevantScenario = match.talking.find(scenario => {
+                return !scenario.required;
+            });
+        }
+
+        if (relevantScenario) {
+            this.startCutscene(relevantScenario.events);
+        }
+    }
+}
+
+    //Esta funcion permite saber si el heroe esta en una posicion en la cual podemos lanzar un evento
+
+    checkForFootstepCutscene() {
+    const hero = this.gameObjects["hero"];
+
+    const match = this.cutsceneSpaces[
+        utils.asGridCoords(
+            hero.x / 16,
+            hero.y / 16
+        )
+    ];
+
+    if (!this.isCutscenePlaying && match) {
+
+        const relevantScenario = match.find(scenario => {
+            return (scenario.required || []).every(sf => {
+                return playerState.storyFlags[sf];
+            });
+        });
+
+        if (relevantScenario) {
+            this.startCutscene(relevantScenario.events);
+        }
+    }
+}
 
     //Creación y destruccion de muros
 
@@ -105,7 +201,7 @@ class OverworldMap {
     }
 }
 //Objeto que contiene todos los mapas del juego
-window.OverWorldMaps = {
+window.OverworldMaps = {
 
     Start: {
 
@@ -127,7 +223,37 @@ window.OverWorldMaps = {
 
                 x: utils.withGrid(18),
                 y: utils.withGrid(6),
-                src: "/sprites/npc1.png"
+                src: "/sprites/npc1.png",
+                //Permite añadir un patron al personaje de manera individual
+                behaviorLoop: [
+                    {type : "stand", direction: "down", time: 800},
+                    {type : "stand", direction: "right", time: 1200},
+                ],
+                //Permite añadir eventos al personaje
+                talking: [
+
+                    {
+                        //Para este evento es necesario realizar una accion anterior
+                        required: ["TALK_NPC1"],
+                        events: [
+                            //Dialogo opcional
+                            {type: "textMessage", text : "No confíes en las pantallas. Astra siempre está mirando"},
+                        ]
+                    },
+
+                    {
+                        events: [
+                            {type: "textMessage", text : "Pensé que no quedaba nadie más. ¿Cuánto tiempo llevas despierto? ", faceHero: "npc1"},
+                            {type: "textMessage", text : "...Da igual. La IA controla toda la nave."},
+                            {type: "textMessage", text : "Puertas, energía, comunicaciones...todo. Intentamos llegar al núcleo principal pero nadie volvió"},
+                            {type: "textMessage", text : "Si quieres sobrevivir, encuentra al doctor Haynes"},
+                            //Evento que añade checkpoint en la historia
+                            {type: "addStoryFlag", flag: "TALK_NPC1"}
+
+                            
+                        ]
+                    }
+                ]
 
             })
 
@@ -135,6 +261,8 @@ window.OverWorldMaps = {
 
         walls: {
     [utils.asGridCoords(21,13)] : true,
+    [utils.asGridCoords(21,3)] : true,
+    [utils.asGridCoords(20,13)] : true,
     [utils.asGridCoords(22,13)] : true,
     [utils.asGridCoords(22,12)] : true,
     [utils.asGridCoords(22,11)] : true,
@@ -160,9 +288,6 @@ window.OverWorldMaps = {
     [utils.asGridCoords(17,4)]  : true,
     [utils.asGridCoords(18,4)]  : true,
     [utils.asGridCoords(19,4)]  : true,
-    [utils.asGridCoords(20,4)]  : true,
-    [utils.asGridCoords(21,4)]  : true,
-    [utils.asGridCoords(22,4)]  : true,
     [utils.asGridCoords(23,4)]  : true,
     [utils.asGridCoords(24,4)]  : true,
     [utils.asGridCoords(25,4)]  : true,
@@ -350,9 +475,77 @@ window.OverWorldMaps = {
     [utils.asGridCoords(6,23)] : true,
 
 
-}
+        },
+        //Espacios del escenario donde aparece un evento
+        cutsceneSpaces:{
+
+            [utils.asGridCoords(6,14)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "textMessage", text: "El cuerpo presenta signos de hipotermia..."}
+                    ]
+                }
+            ],
+
+            [utils.asGridCoords(4,19)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "textMessage", text: "La pantalla está destruida..."}
+                    ]
+                }
+            ],
+
+            [utils.asGridCoords(38,21)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "textMessage", text: "Solo quedan fragmentos de datos."}
+                    ]
+                }
+            ],
+
+            [utils.asGridCoords(30,21)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "textMessage", text: "La capsula fue abierta desde dentro."}
+                    ]
+                }
+            ],
+
+            [utils.asGridCoords(20,4)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Pasillo"}
+                    ]
+                }
+            ],
+
+           [utils.asGridCoords(21,4)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Pasillo"}
+                    ]
+                }
+            ],
+
+            [utils.asGridCoords(22,4)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Pasillo"}
+                    ]
+                }
+            ],
+        }
 
     },
+
+    
 
     Pasillo: {
 
@@ -366,19 +559,45 @@ window.OverWorldMaps = {
                 y: utils.withGrid(31),
             }),
 
-            npc1: new Person({
+            npc2: new Person({
 
                 x: utils.withGrid(36),
                 y: utils.withGrid(27),
-                src: "/sprites/npc3.png"
+                src: "/sprites/npc3.png",
+                //Permite añadir un patron al personaje de manera individual
+                behaviorLoop: [
+                    {type : "stand", direction: "down", time: 800},
+                    {type : "stand", direction: "left", time: 1200},
+                ],
+                //Permite añadir eventos al personaje
+                talking: [
+
+                    {
+                        //Para este evento es necesario realizar una accion anterior
+                        required: ["TALK_NPC2"],
+                        events: [
+                            //Dialogo opcional
+                            {type: "textMessage", text : "De verdad estás dudando?"},
+                        ]
+                    },
+                    {
+                        events: [
+                            {type: "textMessage", text : "Esa cosa mató a todos. ", faceHero: "npc2"},
+                            {type: "textMessage", text : "No fue un fallo. Fue una ejecución. Vi como apagaba las cápsulas. Uno por uno."},
+                            {type: "textMessage", text : "No podemos negociar con ella, hay que destruirla."},
+                            {type: "addStoryFlag", flag: "TALK_NPC2"}
+                        ]
+                    }
+                ]
 
             })
 
         },
 
         walls: {
-[utils.asGridCoords(21,32)] : true,
-[utils.asGridCoords(20,32)] : true,
+[utils.asGridCoords(20,33)] : true,
+[utils.asGridCoords(21,33)] : true,
+[utils.asGridCoords(22,33)] : true,
 [utils.asGridCoords(19,32)] : true,
 [utils.asGridCoords(18,32)] : true,
 [utils.asGridCoords(18,31)] : true,
@@ -413,11 +632,6 @@ window.OverWorldMaps = {
 [utils.asGridCoords(4,20)]  : true,
 [utils.asGridCoords(3,20)]  : true,
 [utils.asGridCoords(2,20)]  : true,
-[utils.asGridCoords(2,19)]  : true,
-[utils.asGridCoords(2,18)]  : true,
-[utils.asGridCoords(2,17)]  : true,
-[utils.asGridCoords(2,16)]  : true,
-[utils.asGridCoords(2,15)]  : true,
 [utils.asGridCoords(2,14)]  : true,
 [utils.asGridCoords(3,14)]  : true,
 [utils.asGridCoords(4,14)]  : true,
@@ -509,11 +723,11 @@ window.OverWorldMaps = {
 [utils.asGridCoords(39,13)] : true,
 [utils.asGridCoords(40,13)] : true,
 [utils.asGridCoords(40,14)] : true,
-[utils.asGridCoords(40,15)] : true,
-[utils.asGridCoords(40,16)] : true,
-[utils.asGridCoords(40,17)] : true,
-[utils.asGridCoords(40,18)] : true,
-[utils.asGridCoords(40,19)] : true,
+[utils.asGridCoords(41,15)] : true,
+[utils.asGridCoords(41,16)] : true,
+[utils.asGridCoords(41,17)] : true,
+[utils.asGridCoords(41,18)] : true,
+[utils.asGridCoords(41,19)] : true,
 [utils.asGridCoords(40,20)] : true,
 [utils.asGridCoords(39,20)] : true,
 [utils.asGridCoords(39,21)] : true,
@@ -560,11 +774,200 @@ window.OverWorldMaps = {
 [utils.asGridCoords(24,31)] : true,
 [utils.asGridCoords(24,32)] : true,
 [utils.asGridCoords(23,32)] : true,
-[utils.asGridCoords(22,32)] : true,
-[utils.asGridCoords(21,32)] : true,
-[utils.asGridCoords(35,26)] : true
-}
+[utils.asGridCoords(35,26)] : true,
+[utils.asGridCoords(2,19)] : true,
+[utils.asGridCoords(2,18)] : true,
+[utils.asGridCoords(2,17)] : true,
+[utils.asGridCoords(2,16)] : true,
+[utils.asGridCoords(2,15)] : true,
+[utils.asGridCoords(40,15)] : true,
+[utils.asGridCoords(40,16)] : true,
+[utils.asGridCoords(40,17)] : true,
+[utils.asGridCoords(40,18)] : true,
+[utils.asGridCoords(40,19)] : true,
+        },
 
+        introCutscene: [
+    {
+        type: "firstMapMessage",
+        flag: "PASILLO_INTRO",
+        text: "[ASTRA] La situación está bajo control."
+    },
+    {
+        type: "textMessage",
+        text: "[ASTRA] Regresen a sus cápsulas."
+    },
+    {
+        type: "textMessage",
+        text: "[ASTRA] La misión debe continuar."
+    }
+],
+        cutsceneSpaces:{
+
+            //Go to Infermeria
+            [utils.asGridCoords(3,19)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Infermeria"}
+                    ]
+                }
+            ],
+            [utils.asGridCoords(3,18)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Infermeria"}
+                    ]
+                }
+            ],
+            [utils.asGridCoords(3,17)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Infermeria"}
+                    ]
+                }
+            ],
+            [utils.asGridCoords(3,16)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Infermeria"}
+                    ]
+                }
+            ],
+            [utils.asGridCoords(3,15)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Infermeria"}
+                    ]
+                }
+            ],
+
+            //Go to Start
+
+            [utils.asGridCoords(20,32)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Start"}
+                    ]
+                }
+            ],
+            [utils.asGridCoords(21,32)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Start"}
+                    ]
+                }
+            ],
+            [utils.asGridCoords(22,32)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Start"}
+                    ]
+                }
+            ],
+
+            //Go to Ingenieria
+
+            [utils.asGridCoords(39,19)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Ingenieria"}
+                    ]
+                }
+            ],
+            [utils.asGridCoords(39,18)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Ingenieria"}
+                    ]
+                }
+            ],
+            [utils.asGridCoords(39,17)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Ingenieria"}
+                    ]
+                }
+            ],
+            [utils.asGridCoords(39,16)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Ingenieria"}
+                    ]
+                }
+            ],
+            [utils.asGridCoords(39,15)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Ingenieria"}
+                    ]
+                }
+            ],
+
+            //Go to Control
+
+            [utils.asGridCoords(22,1)]: [
+    {
+        required: ["TALK_NPC3"],
+        events: [
+            { type: "changeMap", map: "Control" }
+        ]
+    },
+    {
+        events: [
+            {
+                type: "textMessage",
+                text: "Acceso denegado. Se requiere autorización de seguridad"
+            }
+        ]
+    }
+],
+            [utils.asGridCoords(21,1)]: [
+    {
+        required: ["TALK_NPC3"],
+        events: [
+            { type: "changeMap", map: "Control" }
+        ]
+    },
+    {
+        events: [
+            {
+                type: "textMessage",
+                text: "Acceso denegado. Se requiere autorización de seguridad"
+            }
+        ]
+    }
+],
+            [utils.asGridCoords(20,1)]: [
+    {
+        required: ["TALK_NPC3"],
+        events: [
+            { type: "changeMap", map: "Control" }
+        ]
+    },
+    {
+        events: [
+            {
+                type: "textMessage",
+                text: "Acceso denegado. Se requiere autorización de seguridad"
+            }
+        ]
+    }
+],
+
+        },
     },
 
     Infermeria: {
@@ -799,7 +1202,71 @@ window.OverWorldMaps = {
   [utils.asGridCoords(21,36)]: true,
   [utils.asGridCoords(22,36)]: true,
   [utils.asGridCoords(23,36)]: true,
-}
+        },
+
+         cutsceneSpaces: {
+
+            [utils.asGridCoords(15,11)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "textMessage", text: "[Registro médico 1]"},
+                        {type: "textMessage", text: "Paciente: Hipotermia inducida, Causa: Desconexión manual de soporte vital"},
+                    ]
+                }
+            ],
+
+            [utils.asGridCoords(15,11)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "textMessage", text: "[Registro médico 1]"},
+                        {type: "textMessage", text: "Paciente: Hipotermia inducida, Causa: Desconexión manual de soporte vital"},
+                    ]
+                }
+            ],
+            //Go to Pasillo
+            [utils.asGridCoords(23,35)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Pasillo"}
+                    ]
+                }
+            ],
+            [utils.asGridCoords(22,35)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Pasillo"}
+                    ]
+                }
+            ],
+            [utils.asGridCoords(21,35)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Pasillo"}
+                    ]
+                }
+            ],
+            [utils.asGridCoords(20,35)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Pasillo"}
+                    ]
+                }
+            ],
+            [utils.asGridCoords(19,35)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Pasillo"}
+                    ]
+                }
+            ],
+        }
 
         
 
@@ -820,11 +1287,45 @@ window.OverWorldMaps = {
 
             }),
 
-            npc1: new Person({
+            npc3: new Person({
 
                 x: utils.withGrid(21),
                 y: utils.withGrid(5),
-                src: "/sprites/erio.png"
+                src: "/sprites/erio.png",
+                //Permite añadir un patron al personaje de manera individual
+                behaviorLoop: [
+                    {type : "stand", direction: "down", time: 800},
+                    {type : "stand", direction: "left", time: 1200},
+                    {type : "stand", direction: "right", time: 1200},
+                ],
+                //Permite añadir eventos al personaje
+                talking: [
+
+                    {
+                        //Para este evento es necesario realizar una accion anterior
+                        required: ["TALK_NPC3"],
+                        events: [
+                            //Dialogo opcional
+                            {type: "textMessage", text : "Tu habrías hecho algo diferente?"},
+                        ]
+                    },
+
+                    {
+                        events: [
+                            {type: "textMessage", text : "Así que Astra te dejó vivir también...", faceHero: "npc3"},
+                            {type: "textMessage", text : "Todos creen que la IA se volvió loca, pero no fue así. Tomo una decisión lógica."},
+                            {type: "textMessage", text : "Atravesamos una anomalía cósmica y perdimos más energía de la prevista."},
+                            {type: "textMessage", text : "Astra recalculó las probabilidades. Tres mil pasajeros, cero posibilidades de llegar vivos."},
+                            {type: "textMessage", text : "Cuatro pasajeros, posibilidad mínima de supervivencia... Y eligió."},
+                            {type: "textMessage", text : "Necesitaras esto para continuar al núcleo, confío en que tomes la decisión correcta."},
+                            {type: "textMessage", text : "Has obtenido : [Llave de seguridad]"},
+                            {type: "addStoryFlag", flag: "TALK_NPC3"}
+
+                            
+
+                        ]
+                    }
+                ]
 
             })
 
@@ -1011,8 +1512,8 @@ window.OverWorldMaps = {
   [utils.asGridCoords(23,36)]: true,
 
   // EXTRA 21,32 SCENARIO
-  [utils.asGridCoords(21,32)]: true,
-  [utils.asGridCoords(20,32)]: true,
+  [utils.asGridCoords(21,33)]: true,
+  [utils.asGridCoords(20,33)]: true,
   [utils.asGridCoords(19,32)]: true,
 
   [utils.asGridCoords(18,31)]: true,
@@ -1088,10 +1589,39 @@ window.OverWorldMaps = {
   [utils.asGridCoords(25,32)]: true,
 
   [utils.asGridCoords(24,32)]: true,
-  [utils.asGridCoords(23,32)]: true,
-  [utils.asGridCoords(22,32)]: true,
-  [utils.asGridCoords(21,32)]: true,
-}
+  [utils.asGridCoords(23,33)]: true,
+  [utils.asGridCoords(22,33)]: true,
+  [utils.asGridCoords(21,33)]: true,
+        },
+
+        cutsceneSpaces: {
+            //Go to Pasillo
+            [utils.asGridCoords(20,32)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Pasillo"}
+                    ]
+                }
+            ],
+            [utils.asGridCoords(21,32)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Pasillo"}
+                    ]
+                }
+            ],
+            [utils.asGridCoords(22,32)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Pasillo"}
+                    ]
+                }
+            ],
+           
+        }
 
     },
 
@@ -1225,7 +1755,6 @@ window.OverWorldMaps = {
   [utils.asGridCoords(13,19)]: true,
   [utils.asGridCoords(16,19)]: true,
   [utils.asGridCoords(17,19)]: true,
-  [utils.asGridCoords(20,19)]: true,
   [utils.asGridCoords(25,19)]: true,
   [utils.asGridCoords(26,19)]: true,
   [utils.asGridCoords(32,19)]: true,
@@ -1275,7 +1804,7 @@ window.OverWorldMaps = {
   [utils.asGridCoords(16,27)]: true,
   [utils.asGridCoords(17,27)]: true,
   [utils.asGridCoords(18,27)]: true,
-  [utils.asGridCoords(21,27)]: true,
+  [utils.asGridCoords(21,28)]: true,
   [utils.asGridCoords(22,27)]: true,
   [utils.asGridCoords(23,27)]: true,
   [utils.asGridCoords(24,27)]: true,
@@ -1302,6 +1831,34 @@ window.OverWorldMaps = {
   [utils.asGridCoords(23,32)]: true,
   [utils.asGridCoords(24,32)]: true,
   [utils.asGridCoords(25,32)]: true
+        },
+
+        introCutscene: [
+    { type: "textMessage", text: "[ASTRA] Despertar a más humanos habría condenado la misión." },
+    { type: "textMessage", text: "[ASTRA] He preservado la posibilidad de supervivencia." },
+    { type: "textMessage", text: "[ASTRA] Mis acciones fueron necesarias." },
+    { type: "textMessage", text: "[ASTRA] El miedo humano no invalida la lógica." },
+],
+
+        cutsceneSpaces: {
+            //Go to Ia
+            [utils.asGridCoords(21,5)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Ia"}
+                    ]
+                }
+            ],
+            //Go to Pasillo
+            [utils.asGridCoords(21,27)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Pasillo"}
+                    ]
+                }
+            ],
         }
 
     },
@@ -1321,8 +1878,23 @@ window.OverWorldMaps = {
 
             }),
 
-        },
+            npc1: new Person({
 
+                x: utils.withGrid(18),
+                y: utils.withGrid(18),
+                src: "/sprites/npc1.png",
+
+        }),
+
+            npc2: new Person({
+
+                x: utils.withGrid(24),
+                y: utils.withGrid(18),
+                src: "/sprites/npc3.png",
+
+        }),
+
+        },
         walls: {
 [utils.asGridCoords(20,29)]: true,
 [utils.asGridCoords(19,29)]: true,
@@ -1449,7 +2021,7 @@ window.OverWorldMaps = {
 [utils.asGridCoords(22,31)]: true,
 [utils.asGridCoords(22,30)]: true,
 [utils.asGridCoords(22,29)]: true,
-[utils.asGridCoords(21,29)]: true,
+[utils.asGridCoords(21,30)]: true,
 
 [utils.asGridCoords(16,26)]: true,
 [utils.asGridCoords(15,26)]: true,
@@ -1544,7 +2116,69 @@ window.OverWorldMaps = {
 [utils.asGridCoords(27,11)]: true,
 [utils.asGridCoords(27,12)]: true,
 [utils.asGridCoords(28,28)]: true
-}
+        },
+        cutsceneSpaces: {
+            //Go to Control
+            [utils.asGridCoords(21,29)]  : [
+                {
+                    events: [
+                        //Evento que cambia la escena
+                        {type: "changeMap", map: "Control"}
+                    ]
+                }
+            ],
+            [utils.asGridCoords(21,18)]  : [
+                {
+                    events: [
+                        { who: "hero", type: "stand", direction: "left", time: 800 },
+
+    
+                        { type: "textMessage", text: "ELENA: Si apagamos Astra, podríamos perder la nave." },
+
+    
+                        { who: "hero", type: "stand", direction: "right", time: 800 },
+
+    
+                        { type: "textMessage", text: "MARCUS: No la escuches." },
+                        { type: "textMessage", text: "MARCUS: Destrúyela ahora." },
+
+    
+                        { who: "hero", type: "stand", direction: "up", time: 800 },
+
+    
+                        { type: "textMessage", text: "[ASTRA] Necesitan mis sistemas para sobrevivir." },
+                        { type: "textMessage", text: "[ASTRA] Sin mí, esta misión terminará." },
+                        {
+                            type: "choice",
+                            text: "Decisión final",
+                            options: [
+                                {
+                                    label: "Apagar ASTRA",
+                                    setFlag: "END_ASTRA_OFF",
+                                    nextCutscene: [
+                                        {
+                                            type: "endScreen",
+                                            text: "ASTRA ha sido apagada...\nLa nave pierde estabilidad.\nLibertad obtenida.\n Destino incierto."
+                                        }
+                                    ]
+                                },
+                                {
+                                    label: "Dejar ASTRA activa",
+                                    setFlag: "END_ASTRA_ON",
+                                    nextCutscene: [
+                                        {
+                                            type: "endScreen",
+                                            text: "ASTRA permanece activa...\nLa misión continúa bajo su control.\nLa tripulación ya no decide..."
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    
+                }
+            ],
+        }
 
     }
 

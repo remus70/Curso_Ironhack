@@ -1,4 +1,4 @@
-//Función que se inicia a si misma
+//Función que se inicia a si misma y el juego
 
 (function (){
 
