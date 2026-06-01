@@ -1,0 +1,166 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #000;
+    color: #fff;
+}
+
+
+header {
+    background-color: #f5f5dc; 
+    padding: 25px;
+    text-align: center;
+    color: black;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+/* SOBRE MI */
+.sobre-mi {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    margin: 30px;
+
+    background-color: #000;
+    border: 2px solid #fff;
+    border-radius: 15px;
+
+    transition: all 0.3s ease;
+}
+
+.sobre-mi:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.7); /* sombra más potente */
+}
+
+.sobre-mi-contenido {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.texto-yo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; 
+    text-align: center; 
+    max-width: 700px;
+}
+
+
+.profile-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+}
+
+.texto-yot h2 {
+    margin-bottom: 15px;
+    font-size: 2rem;
+}
+
+.texto-yo p {
+    line-height: 1.8;
+    font-size: 1.1rem;
+    max-width: 600px; 
+}
+
+
+.hobbies {
+    display: flex;
+    justify-content: space-around;
+    padding: 20px 40px;
+    gap: 20px;
+}
+
+.hobby {
+    width: 30%;
+    padding: 20px;
+
+    background-color: #000;
+    border: 2px solid #fff;
+    border-radius: 10px;
+
+    text-align: center;
+
+    transition: all 0.3s ease;
+}
+
+.hobby:hover {
+    transform: translateY(-12px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(255, 255, 255, 0.6); /* sombra más intensa */
+}
+
+.hobby-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #fff;
+}
+
+.skills {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 40px 80px 40px; 
+}
+
+.skills-title {
+    margin-bottom: 50px; 
+}
+
+.skills-container {
+    display: flex;
+    gap: 40px;
+    width: 100%;
+    max-width: 1000px;
+}
+
+
+.skills-box {
+    flex: 1;
+    background-color: #000;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    padding: 20px;
+
+    transition: all 0.3s ease;
+}
+
+.skills-box:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(255, 255, 255, 0.6);
+}
+
+.skills-box h3 {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.skills-box ul {
+    list-style: none; 
+    padding: 0;
+}
+
+.skills-box li {
+    padding: 10px;
+    border-bottom: 1px solid #fff;
+    text-align: center;
+}
+
+.skills-box li:last-child {
+    border-bottom: none;
+}
+

@@ -1,0 +1,71 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial;
+    background-color: #111;
+    color: white;
+
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.titulo {
+    margin-bottom: 30px;
+    text-shadow: 0 0 10px white;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 120px);
+    gap: 15px;
+
+    justify-content: center;
+    margin-top: 40px;
+    padding: 20px;
+}
+
+.bomba {
+    width: 120px;
+    height: 120px;
+
+    background-image: url("img/bomba.png");
+    background-size: cover;
+    background-position: center;
+
+    border: 2px solid #fff;   
+    border-radius: 8px;
+
+    background-color: #333;   
+
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.bomba:hover {
+    outline: 2px solid #fff;
+    transform: scale(1.05);
+}
+
+.bomba-explotar:hover {
+    background-image: url("img/explosion.gif");
+    background-size: cover;
+    background-position: center;
+
+    filter: none; 
+    transform: scale(1.1);
+}
+
+.bomba-segura:hover {
+    background-image: url("img/agua.gif");
+
+    transform: scale(1.2);
+    filter: brightness(1.2);
+}
+

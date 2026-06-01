@@ -1,0 +1,71 @@
+header{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #6F7378;
+    color: white;
+    height: 70px;
+    margin-bottom: 50px;
+}
+
+.button-container{
+    display: flex;
+    justify-content: center;
+}
+
+.container{
+
+    margin: 15px;
+
+    padding: 15px;
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 15px;
+
+
+}
+
+.boton1, .boton2, .boton3{
+
+    margin: 15px;
+
+    padding: 10px;
+
+    background-color: rgb(40, 40, 71);
+
+    color: white;
+
+}
+
+#div1{
+
+    box-sizing: border-box;
+
+    width: 700px;
+
+    height:700px;
+
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+
+    font-size: xxx-large;
+
+    text-align: center;
+
+    text-overflow: ellipsis;
+
+    white-space: wrap;
+
+    word-wrap: break-word;
+
+    background-color: rgb(158, 155, 155);
+
+    display: flex ;
+
+    justify-content: center;
+
+    align-items: center;
+
+}

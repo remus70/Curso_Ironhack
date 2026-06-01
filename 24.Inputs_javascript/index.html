@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ticket de Cine</title>   
+  <link rel="stylesheet" href="styles.css"> 
+</head>
+
+<body>
+
+   <div class="container">
+    <h1 class="titulo-principal">🎬Cines Ironhack🎬</h1>
+
+    <div class="contenido">
+      <div class="formulario">
+        <h2>Rellenar Ticket</h2>
+        <label>Nombre</label>
+        <input type="text" id="nombre">
+        <label>Fecha</label>
+        <input type="date" id="fecha">
+        <label>Fila</label>
+        <input type="text" id="fila">
+        <label>Asiento</label>
+        <input type="text" id="asiento">
+        <button onclick="rellenarTicket()">Enviar</button>
+      </div>
+
+      <div class="ticket">
+        <h1> TICKET</h1>
+        <div class="info">Nombre: <span id="ticketNombre"></span></div>
+        <div class="info">Fecha: <span id="ticketFecha"></span></div>
+        <div class="info">Fila: <span id="ticketFila"></span></div>
+        <div class="info">Asiento: <span id="ticketAsiento"></span></div>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="index.js"></script>
+
+</body>
+</html>
