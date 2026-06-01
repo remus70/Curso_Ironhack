@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Formulario de consulta</title>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Formulario de consulta</h2>
+
+      <form action="recibido.html" method="GET">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" />
+
+        <label for="apellido">Apellido:</label>
+        <input type="text" id="apellido" name="apellido" required />
+
+        <label for="edad">Edad:</label>
+        <input
+          type="number"
+          id="edad"
+          name="edad"
+          min="18"
+          max="120"
+          placeholder="Entre 18 y 120 años"
+        />
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required />
+
+        <label for="fecha">Fecha:</label>
+        <input type="date" id="fecha" name="fecha" />
+
+        <label for="asunto">Asunto:</label>
+        <input type="text" id="asunto" name="asunto" required />
+
+        <label for="comentario">Comentario:</label>
+        <textarea id="comentario" name="comentario" maxlength="150"></textarea>
+
+        <button type="submit">
+          <div class="svg-wrapper-1">
+            <div class="svg-wrapper">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="24"
+                height="24"
+              >
+                <path fill="none" d="M0 0h24v24H0z"></path>
+                <path
+                  fill="currentColor"
+                  d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"
+                ></path>
+              </svg>
+            </div>
+          </div>
+          <span>Send</span>
+        </button>
+      </form>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,96 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body{
+    background-color: beige;
+}
+
+.menu {
+  position: sticky;
+  top: 0;
+  background: #222;
+  color: white;
+  padding: 15px;
+  z-index: 1000;
+  text-align: center;
+}
+
+.menu nav a {
+  color: white;
+  margin-right: 15px;
+  text-decoration: none;
+}
+
+.menu nav a:hover{
+    color: red;
+}
+
+.dibujo {
+  position: relative;
+  height: 500px;  
+  margin: 60px auto;  
+  width: 60%;           
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.dibujo1 {
+  background-image: url("img/cielo.avif");
+}
+
+.dibujo2 {
+  background-image: url("img/ciudad.png");
+}
+
+.posicion {
+  position: absolute;
+  width: 120px;
+}
+
+.nave {
+  top: 20%;
+  left: 10%;
+}
+
+.nube {
+  top: 10%;
+  right: 15%;
+}
+
+.vaca {
+  bottom: 0%;
+  left: 20%;
+}
+
+.empresario {
+  bottom: 40%;
+  right: 15%;
+}
+
+.over {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  padding: 10px 20px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  z-index: 10;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #111;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  z-index: 1000;
+}
